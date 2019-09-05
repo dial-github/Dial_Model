@@ -38,17 +38,8 @@ def clean_str(string):
 
 if __name__ == '__main__':
     # dataset used for training
-    # platform = 'gossipcop'
-    # platform = 'politifact'
-    parser = argparse.ArgumentParser(description="your script description")
-    parser.add_argument('--sent_len', '-sl',  help='sentence_length')
-    parser.add_argument('--sent_cout', '-sc',  help='sentence_count')
-    parser.add_argument('--comt_len', '-cl',  help='comment_length')
-    parser.add_argument('--comt_cout', '-cc',  help='comment_count')
-    parser.add_argument('--user_comt', '-uc',  help='user_comment')
-    parser.add_argument('--platform', '-pf',  help='platform')
-    parser.add_argument('--learning', '-lr',  help='learning_rate')
-    parser.add_argument('--bat_size', '-bs',  help='batch_size')
+    parser = argparse.ArgumentParser()
+    
     args = parser.parse_args()
 
     if args.platform:
@@ -114,23 +105,8 @@ if __name__ == '__main__':
     # Train and save the model
     batch_size = 20
     SAVED_MODEL_FILENAME = platform + '_DIAL_new_model.h5'
-    if args.sent_len:
-        h = DIAL(platform, MAX_SENTENCE_LENGTH = int(args.sent_len), alter_params='sent_len')
-    elif args.comt_len:
-        h = DIAL(platform, MAX_COMS_LENGTH = int(args.comt_len), alter_params='comt_len')
-    elif args.comt_cout:
-        h = DIAL(platform, MAX_COMS_COUNT = int(args.comt_cout), alter_params='comt_cout')
-    elif args.sent_cout:
-        h = DIAL(platform, MAX_SENTENCE_COUNT = int(args.sent_cout), alter_params='sent_cout')
-    elif args.user_comt:
-        h = DIAL(platform, USER_COMS = int(args.user_comt), alter_params='user_comt')
-    elif args.learning:
-        h = DIAL(platform, lr=float(int(args.learning)/10000), alter_params='lr')
-    elif args.bat_size:
-        h = DIAL(platform, alter_params='batch_size')
-        batch_size = int(args.bat_size)
-    else:
-        h = DIAL(platform, alter_params='null')
+    
+    h = DIAL(platform, alter_params='null')
 
     h.train(x_train, y_train, c_train, cid_train, cid_val, c_val, x_val, y_val,
                     batch_size=batch_size,
