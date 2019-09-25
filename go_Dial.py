@@ -1,6 +1,5 @@
 # coding=utf-8
 from __future__ import unicode_literals
-import gc
 import io
 import json
 from our import DIAL
@@ -39,7 +38,7 @@ def clean_str(string):
 if __name__ == '__main__':
     # dataset used for training
     parser = argparse.ArgumentParser()
-    
+    parser.add_argument('--platform', '-pf',  help='platform')
     args = parser.parse_args()
 
     if args.platform:
@@ -51,6 +50,7 @@ if __name__ == '__main__':
     labels = []
     texts = []
     ids = []
+
 
     for idx in range(data_train.content.shape[0]):
         text = BeautifulSoup(data_train.content[idx], features="lxml")
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 for ct in com_text.split('::'):
                     if ct:
                         tmp_comments_id.append(commnets_dict[ct])
-                comments_id.append(tmp_comments)
+                comments_id.append(tmp_comments_id)
     
     id_train, id_test, x_train, x_val, y_train, y_val, c_train, c_val, cid_train, cid_val = train_test_split(ids,contents, labels, comments, comments_id,
                                                                       test_size=VALIDATION_SPLIT, random_state=42,
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     
     # Train and save the model
     batch_size = 20
-    SAVED_MODEL_FILENAME = platform + '_DIAL_new_model.h5'
+    SAVED_MODEL_FILENAME = platform + '_DIAL_model.h5'
     
     h = DIAL(platform, alter_params='null')
 

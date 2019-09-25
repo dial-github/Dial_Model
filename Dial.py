@@ -273,6 +273,7 @@ class DIAL():
 
         sentence_input = Input(shape=(self.MAX_SENTENCE_LENGTH,), dtype='int32')
         embedded_sequences = embedding_layer(sentence_input)
+		
         # content iterative
         l_lstm = Bidirectional(GRU(100, return_sequences=True), name='word_lstm')
         l_lstm_output = l_lstm(embedded_sequences)
@@ -283,6 +284,7 @@ class DIAL():
         l_lstm2 = l_lstm(l_att_add)
         l_att2 = l_att(l_lstm2)
         # iterative end
+		
         sentEncoder = Model(sentence_input, l_att2)
         plot_model(sentEncoder, to_file='SentenceEncoder.png', show_shapes=True)
 
@@ -308,14 +310,14 @@ class DIAL():
         attention_weight = Activation('softmax')(attention)
         l_att3 = Dot((1,1))([d_ct,attention_weight])
         userEncodert = Model(user_comment_input, l_att3)
-        clicked_input = Input(shape=(self.USER_COMS, self.MAX_COMS_LENGTH), dtype='int32')
-        clicked_vecs = TimeDistributed(userEncodert, name='user_timedistributed1')(clicked_input)
-        user_vecs = Dropout(0.2)(clicked_vecs)
+        user_input = Input(shape=(self.USER_COMS, self.MAX_COMS_LENGTH), dtype='int32')
+        user_commented_vecs = TimeDistributed(userEncodert, name='user_timedistributed1')(user_input)
+        user_vecs = Dropout(0.2)(user_commented_vecs)
         user_att = Dense(200,activation='tanh')(user_vecs)
         user_att = Flatten()(Dense(1)(user_att))
         user_att = Activation('softmax')(user_att)
         user_vec = Dot((1,1))([user_vecs,user_att])
-        userEncoder = Model(clicked_input, user_vec)
+        userEncoder = Model(user_input, user_vec)
         self.user_encoder1 = userEncoder
         user_att_input = Input(shape=(self.MAX_COMS_COUNT, self.USER_COMS, self.MAX_COMS_LENGTH,), dtype='int32')
         user_re = TimeDistributed(userEncoder, name='user_timedistributed2')(user_att_input)
@@ -590,6 +592,7 @@ class DIAL():
         """
         :param news_article_sentence_list: List of sequence of sentences for each sample
         :param news_article_comment_list: List of sequences
+		:param news_article_user_list: List of user sequences
         :param websafe: parameter to indicate if the interface is used in multithreaded web environment
         :return: Return attention weights of the sentences and comments for the samples passed
         """
@@ -640,6 +643,9 @@ class DIAL():
         sentence_level_weights = sentence_level_encoder.predict(encoded_text)
 
         [Wl, Wc, Ws, whs, whc] = self.co_attention_model.get_weights()
+		
+		
+		
 
         ### Calculate the co attention
         sentence_rep = sentence_level_weights
